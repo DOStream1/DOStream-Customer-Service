@@ -1,0 +1,143 @@
+stages:
+  - Release-prod
+  - Prod-Deploy
+  - Tests-prod
+  - Notification-prod
+
+# include: 'stg.yml'
+
+Promote-container-prod:
+  stage: Release-prod
+  when: manual
+  script:
+    - echo "Promote the container from dev to stg..."
+    # Run your smoke tests here
+# Release for dev environment 
+  needs:
+    - job: notification_email_stg
+
+generate_tag_prod:
+  stage: Release-prod
+  rules:
+    - if: $CI_COMMIT_TAG
+      when: never
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH # Run this job when the default branch changes
+  script:
+    - echo "TAG=$(cat VERSION)" > tag.env
+  artifacts:
+    reports:
+      dotenv: tag.env
+  needs:
+    - job: Promote-container-prod
+
+auto-release-master_prod:
+  image: registry.gitlab.com/gitlab-org/release-cli
+  needs:
+    - job: generate_tag_prod
+      artifacts: true
+  stage: Release-prod
+  rules:
+    - if: $CI_COMMIT_TAG
+      when: never  # Do not run this job when a tag is created manually
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH  # Run this job when commits are pushed to the default branch
+  script:
+    - echo "Release $TAG"
+    #- release-cli --server-url https://gitlab.com --project-id 51551545 --private-token glpat-znYoSk7-gy1nzypUUL8Q create --name "Release $TAG DEV" --description "Created using the release-cli $EXTRA_DESCRIPTION" --tag-name "V$TAG DEV"  --ref $CI_COMMIT_SHA
+    - release-cli --server-url https://gitlab.com --project-id 51551545 --private-token $CI_JOB_TOKEN create --name "Release $TAG" --description "Created using the release-cli $EXTRA_DESCRIPTION" --tag-name "V$TAG"  --ref $CI_COMMIT_SHA
+
+
+#Deploying in Dev
+Deploy-prod:
+  stage: Prod-Deploy
+  tags:
+    - dostream
+  when: manual
+  before_script:
+    - apt-get install openssh-client
+    - eval $(ssh-agent -s)
+    - echo -n "$SSH_PRIVATE_KEY_INTERNAL_DEV" | tr -d '\r' | ssh-add -
+    - mkdir -p ~/.ssh
+    - chmod 700 ~/.ssh
+    - ssh-keyscan ${SSH_HOST_DEV} >> ~/.ssh/known_hosts
+    - chmod 644 ~/.ssh/known_hosts
+  script:
+    - ssh ${SSH_USER_DEV}@${SSH_HOST_DEV} "echo ${CI_REGISTRY_PASSWORD} | docker login -u ${CI_REGISTRY_USER} --password-stdin ${CI_REGISTRY}"
+    - ssh -o StrictHostKeyChecking=no ${SSH_USER_DEV}@${SSH_HOST_DEV} 'docker pull nexus.corp.4sconsult.com/Buy-it-customer-service:latest'
+    - ssh -o StrictHostKeyChecking=no ${SSH_USER_DEV}@${SSH_HOST_DEV} 'docker stop Buy-it-customer-service || true'
+    - ssh -o StrictHostKeyChecking=no ${SSH_USER_DEV}@${SSH_HOST_DEV} 'docker rm Buy-it-customer-service || true'
+    - ssh -o StrictHostKeyChecking=no ${SSH_USER_DEV}@${SSH_HOST_DEV} "echo \"$DEV_SSL_KEY\" > /home/web-git/cert.key"
+    - ssh -o StrictHostKeyChecking=no ${SSH_USER_DEV}@${SSH_HOST_DEV} "echo \"$DEV_SSL_CRT\" > /home/web-git/cert.crt"
+    - ssh -o StrictHostKeyChecking=no ${SSH_USER_DEV}@${SSH_HOST_DEV} 'docker run -d -p 443:443 --name Buy-it-customer-service -v /home/web-git/cert.crt:/etc/ssl/certs/cert.crt -v /home/web-git/cert.key:/etc/ssl/private/cert.key nexus.corp.4sconsult.com/Buy-it-customer-service:latest'
+    - ssh -o StrictHostKeyChecking=no ${SSH_USER_DEV}@${SSH_HOST_DEV} 'docker exec Buy-it-customer-service mv /var/www/html/4sweb/config/config_dev.php /var/www/html/4sweb/config/config.php'
+    - ssh -o StrictHostKeyChecking=no ${SSH_USER_DEV}@${SSH_HOST_DEV} 'docker image prune -f'
+  needs:
+    - job: auto-release-master_prod
+
+unit-test_prod:
+  stage: Tests-prod
+  script:
+    - echo "Running smoke tests..."
+    # Run your smoke tests here
+  needs:
+    - job: Deploy-prod
+
+Shadow-test_prod:
+  stage: Tests-prod
+  script:
+    - echo "Running Shadow tests..."
+    # Run your smoke tests here
+  needs:
+    - job: Deploy-prod
+
+Integration-test_prod:
+  stage: Tests-prod
+  script:
+    - echo "Running Integration tests..."
+    # Run your smoke tests here
+  needs:
+    - job: Deploy-prod
+
+Load-test_prod:
+  stage: Tests-prod
+  script:
+    - echo "Running load tests..."
+    # Run your smoke tests here
+  needs:
+    - job: Deploy-prod
+
+End-user-test_prod:
+  stage: Tests-prod
+  script:
+    - echo "Running end-user tests..."
+    # Run your smoke tests here
+  needs:
+    - job: Deploy-prod
+
+
+notification_email_prod:
+  stage: Notification-prod
+  script:
+    - echo "Running notification send"
+    # Run your smoke tests here
+  # needs:
+  #   - job: Deploy-Dev
+#actual code below
+# notification_email:
+#   stage: Notify
+#   image: alpine:latest
+#   variables:
+#     EMAIL_LIST: "recipient1@example.com recipient2@example.com recipient3@example.com"
+#   script:
+#     - apk add --no-cache mailx
+#     - |
+#       for email in $EMAIL_LIST; do
+#         echo "Your pipeline has completed successfully!" | mailx -s "Pipeline Notification" "$email"
+#       done
+#   only:
+#     - master
+  needs:
+    - job: unit-test_prod
+    - job: Shadow-test_prod
+    - job: Integration-test_prod
+    - job: Load-test_prod
+    - job: End-user-test_prod

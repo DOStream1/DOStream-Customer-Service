@@ -1,0 +1,230 @@
+# This file is a template, and might need editing before it works on your project.
+# This is a sample GitLab CI/CD configuration file that should run without any modifications.
+# It demonstrates a basic 3 stage CI/CD pipeline. Instead of real tests or scripts,
+# it uses echo commands to simulate the pipeline execution.
+#
+# A pipeline is composed of independent jobs that run scripts, grouped into stages.
+# Stages run in sequential order, but jobs within stages run in parallel.
+#
+# For more information, see: https://docs.gitlab.com/ee/ci/yaml/index.html#stages
+#
+# You can copy and paste this template into a new `.gitlab-ci.yml` file.
+# You should not add this template to an existing `.gitlab-ci.yml` file by using the `include:` keyword.
+#
+# To contribute improvements to CI/CD templates, please follow the Development guide at:
+# https://docs.gitlab.com/ee/development/cicd/templates.html
+# This specific template is located at:
+# https://gitlab.com/gitlab-org/gitlab/-/blob/master/lib/gitlab/ci/templates/Getting-Started.gitlab-ci.yml
+
+variables:
+  DEFECTDOJO_URL: "http://secconsole.corp.4sconsult.com:8080/api/v2"
+  API_TOKEN: "051f660d9e9a1409671d9b15370060424f6844b2"
+  MINIMUM_SEVERITY: "Info"
+  ACTIVE: "true"
+  VERIFIED: "true"
+  SCAN_TYPE: "Trivy Scan"
+  CLOSE_OLD_FINDINGS: "false"
+  PUSH_TO_JIRA: "false"
+  PRODUCT_NAME: "Website"
+  SCAN_DATE: $CI_COMMIT_TIMESTAMP
+  ENGAGEMENT_NAME: "Gitlab-test1"
+  TRIVY_REPORT_PATH: "scripts/trivy_report.py"
+
+stages:
+  - Release-dev
+  - Dev-Deploy
+  - DAST Scan
+  - Tests-dev
+  - Notification-dev
+
+
+# Release for dev environment 
+generate_tag_dev:
+  stage: Release-dev
+  rules:
+    - if: $CI_COMMIT_TAG
+      when: never
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH # Run this job when the default branch changes
+  script:
+    - echo "TAG=$(cat VERSION)" > tag.env
+  artifacts:
+    reports:
+      dotenv: tag.env
+  needs:
+    - job: Docker-Scan
+
+auto-release-master_dev:
+  image: registry.gitlab.com/gitlab-org/release-cli
+  needs:
+    - job: generate_tag_dev
+      artifacts: true
+  stage: Release-dev
+  rules:
+    - if: $CI_COMMIT_TAG
+      when: never  # Do not run this job when a tag is created manually
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH  # Run this job when commits are pushed to the default branch
+  script:
+    - echo "Release $TAG"
+    #- release-cli --server-url https://gitlab.com --project-id 51551545 --private-token glpat-znYoSk7-gy1nzypUUL8Q create --name "Release $TAG DEV" --description "Created using the release-cli $EXTRA_DESCRIPTION" --tag-name "V$TAG DEV"  --ref $CI_COMMIT_SHA
+    - release-cli --server-url https://gitlab.com --project-id 51551545 --private-token $CI_JOB_TOKEN create --name "Release $TAG" --description "Created using the release-cli $EXTRA_DESCRIPTION" --tag-name "V$TAG"  --ref $CI_COMMIT_SHA
+
+#Deploying in Dev
+Deploy-Dev:
+  stage: Dev-Deploy
+  tags:
+    - dostream
+  when: manual
+  before_script:
+    - apt-get install openssh-client
+    - eval $(ssh-agent -s)
+    - echo -n "$SSH_PRIVATE_KEY_INTERNAL_DEV" | tr -d '\r' | ssh-add -
+    - mkdir -p ~/.ssh
+    - chmod 700 ~/.ssh
+    - ssh-keyscan ${SSH_HOST_DEV} >> ~/.ssh/known_hosts
+    - chmod 644 ~/.ssh/known_hosts
+  script:
+    - ssh ${SSH_USER_DEV}@${SSH_HOST_DEV} "echo ${CI_REGISTRY_PASSWORD} | docker login -u ${CI_REGISTRY_USER} --password-stdin ${CI_REGISTRY}"
+    - ssh -o StrictHostKeyChecking=no ${SSH_USER_DEV}@${SSH_HOST_DEV} 'docker pull nexus.corp.4sconsult.com/Buy-it-customer-service:latest'
+    - ssh -o StrictHostKeyChecking=no ${SSH_USER_DEV}@${SSH_HOST_DEV} 'docker stop Buy-it-customer-service || true'
+    - ssh -o StrictHostKeyChecking=no ${SSH_USER_DEV}@${SSH_HOST_DEV} 'docker rm Buy-it-customer-service || true'
+    - ssh -o StrictHostKeyChecking=no ${SSH_USER_DEV}@${SSH_HOST_DEV} "echo \"$DEV_SSL_KEY\" > /home/web-git/cert.key"
+    - ssh -o StrictHostKeyChecking=no ${SSH_USER_DEV}@${SSH_HOST_DEV} "echo \"$DEV_SSL_CRT\" > /home/web-git/cert.crt"
+    - ssh -o StrictHostKeyChecking=no ${SSH_USER_DEV}@${SSH_HOST_DEV} 'docker run -d -p 443:443 --name Buy-it-customer-service -v /home/web-git/cert.crt:/etc/ssl/certs/cert.crt -v /home/web-git/cert.key:/etc/ssl/private/cert.key nexus.corp.4sconsult.com/Buy-it-customer-service:latest'
+    - ssh -o StrictHostKeyChecking=no ${SSH_USER_DEV}@${SSH_HOST_DEV} 'docker exec Buy-it-customer-service mv /var/www/html/4sweb/config/config_dev.php /var/www/html/4sweb/config/config.php'
+    - ssh -o StrictHostKeyChecking=no ${SSH_USER_DEV}@${SSH_HOST_DEV} 'docker image prune -f'
+  needs:
+    - job: auto-release-master_dev
+
+
+OWSAP Scan:
+  stage: DAST Scan
+  script:
+    - echo "Running OWSAP scan..."
+    # Run your smoke tests here
+  needs:
+    - job: Deploy-Dev
+  # needs:
+  #   - job: build Image
+# OWSAP Scan:       
+#   image: owasp/zap2docker-stable:2.12.0
+#   stage: Security Scan
+#   allow_failure: true
+#   script:
+#     - echo "create a directory..."
+#     - mkdir /zap/wrk
+#     - echo "Execute the baseline scan..."
+#     - /zap/zap-baseline.py -t http://4swebdev.4sconsult.com/ -g gen.conf -r testreport.html
+#   after_script:
+#     - echo "Copy report file to the artifact path..."
+#     - cp /zap/wrk/testreport.html .
+#   artifacts:
+#     when: always
+#     expire_in: 30 days
+#     paths:
+#       - testreport.html
+
+defectdojo-owsap:
+  stage: DAST Scan
+  # image: python:3.9
+  variables:
+    GIT_STRATEGY: none
+    SSH_PRIVATE_KEY_TRIVY: ${SSH_PRIVATE_KEY_INTERNAL_TRIVY}
+  rules:
+    - when: always
+  before_script:
+    - apt-get update
+    - apt-get install -y python3-pip  # Install Python
+    - pip3 install requests  # Install the required Python package
+    - apt-get install curl jq coreutils
+    - TODAY=$(date +%Y-%m-%d)
+    - ENDDAY=$(date -d "+${DEFECTDOJO_ENGAGEMENT_PERIOD} days" +%Y-%m-%d)
+    - eval "$(ssh-agent -s)"
+    - echo -n "$SSH_PRIVATE_KEY_INTERNAL_TRIVY" | tr -d '\r' | ssh-add -
+    - mkdir -p ~/.ssh
+    - chmod 700 ~/.ssh
+    - ssh-keyscan ${SSH_HOST_TRIVY} >> ~/.ssh/known_hosts
+    - chmod 644 ~/.ssh/known_hosts
+  script:
+    - git clone "https://gitlab-ci-token:${CI_JOB_TOKEN}@${CI_REPOSITORY_URL}"
+    - cd 4sweb-v2
+    - scp -o StrictHostKeyChecking=no ${SSH_USER_TRIVY}@${SSH_HOST_TRIVY}:/home/git-trivy/trivy-results.json trivy-results.json
+    - ls -la
+    - python3 scripts/trivy_report.py --defectdojo-url ${DEFECTDOJO_URL} --api-token $API_TOKEN --minimum-severity $MINIMUM_SEVERITY --active $ACTIVE --verified $VERIFIED --scan-type "$SCAN_TYPE" --close-old-findings $CLOSE_OLD_FINDINGS --push-to-jira $PUSH_TO_JIRA --product-name "$PRODUCT_NAME" --scan-date $SCAN_DATE --engagement-name "$ENGAGEMENT_NAME" --trivy-report-path $TRIVY_REPORT_PATH
+  artifacts:
+    reports:
+      dotenv: defectdojo.env
+  needs:
+    - job: OWSAP Scan
+      artifacts: true
+
+
+unit-test_dev:
+  stage: Tests-dev
+  script:
+    - echo "Running smoke tests..."
+    # Run your smoke tests here
+  # needs:
+  #   - job: Deploy-Dev
+  needs:
+    - job: Deploy-Dev
+
+Shadow-test_dev:
+  stage: Tests-dev
+  script:
+    - echo "Running Shadow tests..."
+    # Run your smoke tests here
+  needs:
+    - job: Deploy-Dev
+
+Integration-test_dev:
+  stage: Tests-dev
+  script:
+    - echo "Running Integration tests..."
+    # Run your smoke tests here
+  needs:
+    - job: Deploy-Dev
+
+Load-test_dev:
+  stage: Tests-dev
+  script:
+    - echo "Running load tests..."
+    # Run your smoke tests here
+  needs:
+    - job: Deploy-Dev
+
+End-user-test_dev:
+  stage: Tests-dev
+  script:
+    - echo "Running end-user tests..."
+    # Run your smoke tests here
+  needs:
+    - job: Deploy-Dev
+
+
+notification_email_dev:
+  stage: Notification-dev
+  script:
+    - echo "Running notification send"
+    # Run your smoke tests here
+  # needs:
+  #   - job: Deploy-Dev
+#actual code below
+# notification_email:
+#   stage: Notify
+#   image: alpine:latest
+#   variables:
+#     EMAIL_LIST: "recipient1@example.com recipient2@example.com recipient3@example.com"
+#   script:
+#     - apk add --no-cache mailx
+#     - |
+#       for email in $EMAIL_LIST; do
+#         echo "Your pipeline has completed successfully!" | mailx -s "Pipeline Notification" "$email"
+#       done
+#   only:
+#     - master
+  needs:
+    - job: unit-test_dev
+    - job: Shadow-test_dev
+    - job: Integration-test_dev
+    - job: Load-test_dev
+    - job: End-user-test_dev
