@@ -3,21 +3,46 @@ name: CI/CD Pipeline
 on:
   push:
     branches:
-      - main
+      - '*'
 
 jobs:
-  SonarQube-Scan:
+  sonarqube:
     runs-on: ubuntu-latest
     steps:
-      - name: Check out code
-        uses: actions/checkout@v2
+    - name: Checkout code
+      uses: actions/checkout@v2
 
-      - name: Set up SonarQube Scanner
-        uses: sonarsource/sonarqube-scan-action@v1
-        with:
-          url: ${{ secrets.SONAR_HOST_URL }}
-          login: ${{ secrets.SONAR_LOGIN }}
-          password: ${{ secrets.SONAR_PASSWORD }}
+    - name: Set up Java
+      uses: actions/setup-java@v2
+      with:
+        java-version: '11' # Adjust to the Java version you need
+
+    - name: Cache SonarQube Scanner
+      uses: actions/cache@v2
+      with:
+        path: ~/.sonar/cache
+        key: sonarqube-cache-${{ runner.os }}
+        restore-keys: sonarqube-cache-
+
+    - name: SonarQube Scan
+      run: |
+        sonar-scanner -X \
+          -Dsonar.projectKey=dostream1_application_backend_customer_AYuM21A_as2mrdqZe6MK \
+          -Dproject.settings=./sonarqube/sonar-project.properties \
+          -Dsonar.sources=./ \
+          -Dsonar.host.url="$SONAR_HOST_URL" \
+          -Dsonar.login="$SONAR_TOKEN" # Use 'login' instead of 'token' in GitHub Actions
+
+    - name: Upload SonarQube Quality Gate
+      uses: sonarsource/sonarcloud-github-action@v1
+      with:
+        organization: ${{ secrets.SONAR_ORGANIZATION }} # Add your SonarCloud organization secret
+
+    - name: Upload SonarQube Report
+      uses: actions/upload-artifact@v2
+      with:
+        name: sonarqube-report
+        path: .scannerwork/report-task.txt
 
   build-Image:
     runs-on: ubuntu-latest
@@ -115,7 +140,7 @@ jobs:
 
   include-dev:
     runs-on: ubuntu-latest
-    needs: [SonarQube-Scan, build-Image, Docker-Scan, OWSAP-Scan, defectdojo]
+    needs: [sonarqube, build-Image, Docker-Scan, OWSAP-Scan, defectdojo]
     steps:
       - name: Include dev.yml
         uses: actions/checkout@v2
@@ -126,7 +151,7 @@ jobs:
 
   include-stg:
     runs-on: ubuntu-latest
-    needs: [SonarQube-Scan, build-Image, Docker-Scan, OWSAP-Scan, defectdojo]
+    needs: [sonarqube, build-Image, Docker-Scan, OWSAP-Scan, defectdojo]
     steps:
       - name: Include stg.yml
         uses: actions/checkout@v2
@@ -137,7 +162,7 @@ jobs:
 
   include-prod:
     runs-on: ubuntu-latest
-    needs: [SonarQube-Scan, build-Image, Docker-Scan, OWSAP-Scan, defectdojo]
+    needs: [sonarqube, build-Image, Docker-Scan, OWSAP-Scan, defectdojo]
     steps:
       - name: Include prod.yml
         uses: actions/checkout@v2
