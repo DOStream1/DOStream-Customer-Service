@@ -31,7 +31,8 @@ jobs:
         env:
           SONARTOKEN: ${{ secrets.SONAR_TOKEN }}
           SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
-          OPTIONS: -Dsonar.project.settings=./sonarqube/sonar-project.properties
+          # OPTIONS: -Dproject.settings=./sonarqube/sonar-project.properties
+          OPTIONS: -Dsonar.projectKey=dostream1_application_backend_customer_AYuRJz0z0-Xo9zBhfJiw
 
   push_to_registry:
     name: Push Docker image to Docker Hub
