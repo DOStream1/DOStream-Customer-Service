@@ -3,46 +3,31 @@ name: CI/CD Pipeline
 on:
   push:
     branches:
-      - '*'
-      
+      - main
+
 jobs:
-#   sonarqube:
-#     runs-on: ubuntu-latest
-#     steps:
-#     - name: Checkout code
-#       uses: actions/checkout@v2
 
-#     - name: Set up Java
-#       uses: actions/setup-java@v2
-#       with:
-#         java-version: '11' # Adjust to the Java version you need
+  sonarqube:
+    name: SonarQube Scan
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      - name: Setup Node.js
+        uses: actions/setup-node@v1
+        with:
+          node-version: 12
+      - name: Install dependencies
+        run: yarn install
 
-#     - name: Cache SonarQube Scanner
-#       uses: actions/cache@v2
-#       with:
-#         path: ~/.sonar/cache
-#         key: sonarqube-cache-${{ runner.os }}
-#         restore-keys: sonarqube-cache-
+      - name: SonarQube Scan
+        uses: sonarsource/sonarqube-scan-action@master
+        env:
+          SONARTOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
 
-#     - name: SonarQube Scan
-#       run: |
-#         sonar-scanner -X \
-#           -Dsonar.projectKey=dostream1_application_backend_customer_AYuM21A_as2mrdqZe6MK \
-#           -Dproject.settings=./sonarqube/sonar-project.properties \
-#           -Dsonar.sources=./ \
-#           -Dsonar.host.url="$SONAR_HOST_URL" \
-#           -Dsonar.login="$SONAR_TOKEN" # Use 'login' instead of 'token' in GitHub Actions
-
-#     - name: Upload SonarQube Quality Gate
-#       uses: sonarsource/sonarcloud-github-action@v1
-#       with:
-#         organization: ${{ secrets.SONAR_ORGANIZATION }} # Add your SonarCloud organization secret
-
-#     - name: Upload SonarQube Report
-#       uses: actions/upload-artifact@v2
-#       with:
-#         name: sonarqube-report
-#         path: .scannerwork/report-task.txt
 
   # build-Image:
   #   runs-on: ubuntu-latest
@@ -52,12 +37,10 @@ jobs:
 
   #     - name: Build Docker Image
   #       run: |
-  #         VERSION=$(cat version.txt)
-  #         export IMAGE_NAME=Buy-it-customer-service:$VERSION
-  #         docker build -t $IMAGE_NAME .
+  #         docker build -t Buy-it-customer-service .
   #         echo ${{ secrets.CI_REGISTRY_PASSWORD }} | docker login -u ${{ secrets.CI_REGISTRY_USER }} --password-stdin ${{ secrets.CI_REGISTRY }}
-  #         docker tag $IMAGE_NAME nexus.corp.4sconsult.com/Buy-it-customer-service:latest
-  #         docker push pirabanjan/$IMAGE_NAM
+  #         docker tag Buy-it-customer-service:latest nexus.corp.4sconsult.com/Buy-it-customer-service:latest
+  #         docker push nexus.corp.4sconsult.com/Buy-it-customer-service:latest
   #       env:
   #         CI_REGISTRY_USER: ${{ secrets.CI_REGISTRY_USER }}
   #         CI_REGISTRY_PASSWORD: ${{ secrets.CI_REGISTRY_PASSWORD }}
@@ -110,7 +93,7 @@ jobs:
       - name: Run Trivy scan
         run: |
           echo ${{ secrets.CI_REGISTRY_PASSWORD }} | docker login -u ${{ secrets.CI_REGISTRY_USER }} --password-stdin ${{ secrets.CI_REGISTRY }}
-          trivy image --severity CRITICAL,HIGH,MEDIUM --format json -o trivy-results.json nexus.corp.4sconsult.com/Buy-it-customer-service-02-02:latest
+          trivy image --severity CRITICAL,HIGH,MEDIUM --format json -o trivy-results.json nexus.corp.4sconsult.com/Buy-it-customer-service:latest
         env:
           CI_REGISTRY_USER: ${{ secrets.CI_REGISTRY_USER }}
           CI_REGISTRY_PASSWORD: ${{ secrets.CI_REGISTRY_PASSWORD }}
@@ -169,7 +152,7 @@ jobs:
 
   # include-dev:
   #   runs-on: ubuntu-latest
-  #   needs: [sonarqube, build-Image, Docker-Scan, OWSAP-Scan, defectdojo]
+  #   needs: [SonarQube-Scan, build-Image, Docker-Scan, OWSAP-Scan, defectdojo]
   #   steps:
   #     - name: Include dev.yml
   #       uses: actions/checkout@v2
@@ -180,7 +163,7 @@ jobs:
 
   # include-stg:
   #   runs-on: ubuntu-latest
-  #   needs: [sonarqube, build-Image, Docker-Scan, OWSAP-Scan, defectdojo]
+  #   needs: [SonarQube-Scan, build-Image, Docker-Scan, OWSAP-Scan, defectdojo]
   #   steps:
   #     - name: Include stg.yml
   #       uses: actions/checkout@v2
@@ -191,7 +174,7 @@ jobs:
 
   # include-prod:
   #   runs-on: ubuntu-latest
-  #   needs: [sonarqube, build-Image, Docker-Scan, OWSAP-Scan, defectdojo]
+  #   needs: [SonarQube-Scan, build-Image, Docker-Scan, OWSAP-Scan, defectdojo]
   #   steps:
   #     - name: Include prod.yml
   #       uses: actions/checkout@v2
