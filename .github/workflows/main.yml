@@ -7,26 +7,6 @@ on:
 
 jobs:
 
-  # sonarqube:
-  #   name: SonarQube Scan
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - name: Checkout source code
-  #       uses: actions/checkout@v2
-  #       with:
-  #         fetch-depth: 0
-  #     - name: Setup Node.js
-  #       uses: actions/setup-node@v1
-  #       with:
-  #         node-version: 16
-  #     - name: Install dependencies
-  #       run: yarn install
-
-  #     - name: SonarQube Scan
-  #       uses: sonarsource/sonarqube-scan-action@master
-  #       env:
-  #         SONARTOKEN: ${{ secrets.SONAR_TOKEN }}
-  #         SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
   sonarqube:
     name: SonarQube Scan
     runs-on: ubuntu-latest
@@ -41,18 +21,13 @@ jobs:
           node-version: 16
       - name: Install dependencies
         run: yarn install
-      - name: SonarQube Scan
-        run: |
-          sonar-scanner -X \
-            -Dsonar.projectKey=dostream1_application_backend_customer_AYuRJz0z0-Xo9zBhfJiw \
-            -Dproject.settings=./sonarqube/sonar-project.properties \
-            -Dsonar.sources=./ \
-            -Dsonar.host.url="$SONAR_HOST_URL" \
-            -Dsonar.login="$SONAR_TOKEN"
-        env:
-          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
+      - name: SonarQube Scan
+        uses: sonarsource/sonarqube-scan-action@master
+        env:
+          SONARTOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+          OPTIONS: -Dsonar.project.settings=./sonarqube/sonar-project.properties
 
   push_to_registry:
     name: Push Docker image to Docker Hub
