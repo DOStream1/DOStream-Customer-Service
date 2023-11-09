@@ -29,7 +29,7 @@ jobs:
         #     -Dsonar.projectKey=dostream1_application_backend_customer_AYuRJz0z0-Xo9zBhfJiw
         #     -Dsonar.verbose=true
         env:
-          SONARTOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
           # OPTIONS: -Dproject.settings=./sonarqube/sonar-project.properties
           # OPTIONS: -Dsonar.projectKey=dostream1_application_backend_customer_AYuRJz0z0-Xo9zBhfJiw
