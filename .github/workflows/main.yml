@@ -29,21 +29,6 @@ jobs:
           SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
 
 
-  # build-Image:
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - name: Check out code
-  #       uses: actions/checkout@v2
-
-  #     - name: Build Docker Image
-  #       run: |
-  #         docker build -t Buy-it-customer-service .
-  #         echo ${{ secrets.CI_REGISTRY_PASSWORD }} | docker login -u ${{ secrets.CI_REGISTRY_USER }} --password-stdin ${{ secrets.CI_REGISTRY }}
-  #         docker tag Buy-it-customer-service:latest nexus.corp.4sconsult.com/Buy-it-customer-service:latest
-  #         docker push nexus.corp.4sconsult.com/Buy-it-customer-service:latest
-  #       env:
-  #         CI_REGISTRY_USER: ${{ secrets.CI_REGISTRY_USER }}
-  #         CI_REGISTRY_PASSWORD: ${{ secrets.CI_REGISTRY_PASSWORD }}
   push_to_registry:
     name: Push Docker image to Docker Hub
     runs-on: ubuntu-latest
