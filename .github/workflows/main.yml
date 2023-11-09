@@ -24,10 +24,10 @@ jobs:
 
       - name: SonarQube Scan
         uses: sonarsource/sonarqube-scan-action@master
-        # with:
-        #   args: >
-        #     -Dsonar.projectKey=dostream1_application_backend_customer_AYuRJz0z0-Xo9zBhfJiw
-        #     -Dsonar.verbose=true
+        with:
+          args: >
+            -Dsonar.projectKey=dostream1_application_backend_customer_AYuRJz0z0-Xo9zBhfJiw
+            -Dsonar.verbose=true
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
