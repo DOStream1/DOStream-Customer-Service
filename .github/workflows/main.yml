@@ -11,7 +11,7 @@ jobs:
     name: Code-Scan
     steps:
       - uses: actions/checkout@v3
-      - uses: ./sonarqube
+      - uses: ./sonarqube/sonarqube.yml
 
   build:
     runs-on: ubuntu-latest
@@ -19,7 +19,7 @@ jobs:
     name: build
     steps:
       - uses: actions/checkout@v3
-      - uses: ./docker
+      - uses: ./docker/docker.yml
 
   sca:
     runs-on: ubuntu-latest
@@ -27,7 +27,7 @@ jobs:
     name: SCA
     steps:
       - uses: actions/checkout@v3
-      - uses: ./sca
+      - uses: ./sca/sca.yml
   
   sast:
     runs-on: ubuntu-latest
@@ -35,7 +35,7 @@ jobs:
     name: SAST
     steps:
       - uses: actions/checkout@v3
-      - uses: ./sast
+      - uses: ./sast/sast/yml
 
   tivy-scan:
     runs-on: ubuntu-latest
@@ -43,7 +43,7 @@ jobs:
     name: Trivy
     steps:
       - uses: actions/checkout@v3
-      - uses: ./trivy-scan
+      - uses: ./trivy-scan/trivy-scan.yml
 
   dast:
     runs-on: ubuntu-latest
@@ -51,5 +51,5 @@ jobs:
     name: DAST
     steps:
       - uses: actions/checkout@v3
-      - uses: ./dast
+      - uses: ./dast/dast.yml
   
