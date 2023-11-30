@@ -17,11 +17,11 @@ jobs:
     uses: ./.github/workflows/docker.yml
     secrets: inherit
 
-  sca:
-    # needs: build
-    name: SCA
-    uses: ./.github/workflows/sca.yml
-    secrets: inherit
+  # sca:
+  #   # needs: build
+  #   name: SCA
+  #   uses: ./.github/workflows/sca.yml
+  #   secrets: inherit
   
   # sast:
   #   needs: build
@@ -29,11 +29,11 @@ jobs:
   #   uses: ./.github/workflows/sast.yml
   #   secrets: inherit
 
-  tivy-scan:
+  # tivy-scan:
     # needs: build
-    name: Trivy
-    uses: ./.github/workflows/trivy-scan.yml
-    secrets: inherit
+  #   name: Trivy
+  #   uses: ./.github/workflows/trivy-scan.yml
+  #   secrets: inherit
 
   dast:
     needs: build

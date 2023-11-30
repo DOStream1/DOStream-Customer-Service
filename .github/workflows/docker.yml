@@ -45,8 +45,9 @@ jobs:
     name: Push Docker image to Docker Hub
     runs-on: ubuntu-latest
     outputs:
-      id: image-tag
-      value: my-custom-tag  # Hardcoded ta
+      # id: image-tag
+      # value: my-custom-tag  # Hardcoded ta
+      tags: my-custom-tag
       # Define the output variable 'image-tag' to pass to other jobs
       # id: image-tag
       # value: ${{ needs.push_to_registry.outputs.tags }}
