@@ -2,11 +2,11 @@ name: 50 DAST Scan Docker Image
 
 on:
   workflow_dispatch:
-    inputs:
-      image-tag:
-        type: string
-        description: 'The name of the docker image to scan'
-        required: true
+    # inputs:
+    #   image-tag:
+    #     type: string
+    #     description: 'The name of the docker image to scan'
+    #     required: true
 
   workflow_call:
     inputs:
@@ -14,10 +14,6 @@ on:
         type: string
         description: 'The name of the docker image to scan'
         required: true
-
-env:
-  REGISTRY: ghcr.io
-  IMAGE_TAG: ${{ inputs.image-tag }}
 
 jobs:
   dast-scan:
@@ -32,11 +28,8 @@ jobs:
       - name: Debug Image Tag
         run: echo ${{ inputs.image-tag }}
 
-      - name: Debug Image Tag1
-        run: echo ${{ env.IMAGE_TAG }}
-
       - name: Start Docker container
-        run: docker run -d -p 8001:8001 --name container ${{ env.IMAGE_TAG }}
+        run: docker run -d -p 8001:8001 --name container pirabanjan/buy-it-customer-service:${{ inputs.image-tag }}
         
       - name: Wait for container to start
         run: timeout 300 bash -c 'while [[ "$(curl -s -o /dev/null -w ''%{http_code}'' localhost:8001)" != "200" ]]; do sleep 5; done' || false

@@ -11,11 +11,18 @@ jobs:
   #   uses: ./.github/workflows/sonarqube.yml
   #   secrets: inherit
 
+  # build:
+  #   # needs: code-scan
+  #   #name: build
+  #   uses: ./.github/workflows/docker.yml
+  #   secrets: inherit
   build:
     # needs: code-scan
     # name: build
     uses: ./.github/workflows/docker.yml
     secrets: inherit
+    with:
+      image-tag: "my-tag1"
 
   # sca:
   #   # needs: build
@@ -41,6 +48,5 @@ jobs:
     uses: ./.github/workflows/dast.yml
     secrets: inherit
     with:
-      # image-tag: ${{ needs.build.outputs.tags }}
-      image-tag: "test"
+      image-tag: "my-tag1"
   
