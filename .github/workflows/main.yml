@@ -19,6 +19,7 @@ jobs:
 
 
   build:
+    needs: code-scan
     name: Build
     uses: ./.github/workflows/docker.yml
     secrets: inherit
@@ -46,4 +47,6 @@ jobs:
     name: DAST
     uses: ./.github/workflows/dast.yml
     secrets: inherit
+    with:
+      image-tag: ${{ needs.docker.outputs.image-tag }}
   
