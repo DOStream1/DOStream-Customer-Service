@@ -17,7 +17,6 @@ jobs:
     uses: ./.github/workflows/sonarqube.yml
     secrets: inherit
 
-
   build:
     needs: code-scan
     name: Build
@@ -25,7 +24,7 @@ jobs:
     secrets: inherit
 
   sca:
-    needs: build
+    # needs: build
     name: SCA
     uses: ./.github/workflows/sca.yml
     secrets: inherit
@@ -37,7 +36,7 @@ jobs:
   #   secrets: inherit
 
   tivy-scan:
-    needs: build
+    # needs: build
     name: Trivy
     uses: ./.github/workflows/trivy-scan.yml
     secrets: inherit
@@ -48,5 +47,5 @@ jobs:
     uses: ./.github/workflows/dast.yml
     secrets: inherit
     with:
-      image-tag: ${{ needs.docker.outputs.image-tag }}
+      image-tag: ${{ needs.build.outputs.tags }}
   
