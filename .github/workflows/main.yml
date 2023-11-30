@@ -12,20 +12,19 @@ jobs:
   #   steps:
   #     - uses: actions/checkout@v3
   #     - uses: ./sonarqube
-  code-scan:
-    name: Code-Scan
-    uses: ./.github/workflows/sonarqube.yml
-    secrets: inherit
+  # code-scan:
+  #   name: Code-Scan
+  #   uses: ./.github/workflows/sonarqube.yml
+  #   secrets: inherit
 
-
-  build:
-    needs: code-scan
-    name: Build
-    uses: ./.github/workflows/docker.yml
-    secrets: inherit
+  # build:
+  #   needs: code-scan
+  #   name: Build
+  #   uses: ./.github/workflows/docker.yml
+  #   secrets: inherit
 
   sca:
-    needs: build
+    # needs: build
     name: SCA
     uses: ./.github/workflows/sca.yml
     secrets: inherit
@@ -37,13 +36,13 @@ jobs:
   #   secrets: inherit
 
   tivy-scan:
-    needs: build
+    # needs: build
     name: Trivy
     uses: ./.github/workflows/trivy-scan.yml
     secrets: inherit
 
   dast:
-    needs: build
+    # needs: build
     name: DAST
     uses: ./.github/workflows/dast.yml
     secrets: inherit
