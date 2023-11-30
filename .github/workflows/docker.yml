@@ -34,20 +34,23 @@ name: Docker build Pipeline
 
 on:
   workflow_call:
-    inputs:
-      image-tag:
-        type: string
-        description: 'The name of the docker image to scan'
-        required: true
+    # inputs:
+    #   image-tag:
+    #     type: string
+    #     description: 'The name of the docker image to scan'
+    #     required: true
 
 jobs:
   push_to_registry:
     name: Push Docker image to Docker Hub
     runs-on: ubuntu-latest
     outputs:
-      # Define the output variable 'image-tag' to pass to other jobs
       id: image-tag
-      value: ${{ needs.push_to_registry.outputs.tags }}
+      value: my-custom-tag  # Hardcoded ta
+      # Define the output variable 'image-tag' to pass to other jobs
+      # id: image-tag
+      # value: ${{ needs.push_to_registry.outputs.tags }}
+
 
     steps:
       - name: Check out the repo
@@ -71,5 +74,6 @@ jobs:
           context: .
           file: ./Dockerfile
           push: true
-          tags: ${{ steps.meta.outputs.tags }}
+          # tags: ${{ steps.meta.outputs.tags }}
+          tags: my-tag
           labels: ${{ steps.meta.outputs.labels }}

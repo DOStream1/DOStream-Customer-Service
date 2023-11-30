@@ -59,4 +59,4 @@ jobs:
       - name: Stop Docker container
         if: always()
         run: |
-          docker stop demoApp && docker rm demoApp && docker container prune --force && docker image prune --force
+          docker stop customer && docker rm customer && docker container prune --force && docker image prune --force
