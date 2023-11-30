@@ -1,8 +1,5 @@
 name: Sonarqube pipeline
-on:
-  push:
-    branches:
-      - main
+on: workflow_call
 
 jobs:
     Docker-Scan:
