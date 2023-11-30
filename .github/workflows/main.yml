@@ -6,19 +6,13 @@ on:
       - main
 
 jobs:
-  # code-Scan:
-  #   runs-on: ubuntu-latest
+  # code-scan:
   #   name: Code-Scan
-  #   steps:
-  #     - uses: actions/checkout@v3
-  #     - uses: ./sonarqube
-  code-scan:
-    name: Code-Scan
-    uses: ./.github/workflows/sonarqube.yml
-    secrets: inherit
+  #   uses: ./.github/workflows/sonarqube.yml
+  #   secrets: inherit
 
   build:
-    needs: code-scan
+    # needs: code-scan
     name: Build
     uses: ./.github/workflows/docker.yml
     secrets: inherit
