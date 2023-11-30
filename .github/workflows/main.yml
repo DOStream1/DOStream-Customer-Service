@@ -41,5 +41,6 @@ jobs:
     uses: ./.github/workflows/dast.yml
     secrets: inherit
     with:
-      image-tag: ${{ needs.build.outputs.tags }}
+      # image-tag: ${{ needs.build.outputs.tags }}
+      image-tag: "test"
   
