@@ -29,8 +29,11 @@ jobs:
           username: ${{ secrets.CI_REGISTRY_USER }}
           password: ${{ secrets.CI_REGISTRY_PASSWORD }}
 
+      - name: Debug Image Tag
+        run: echo ${{ env.IMAGE_TAG }}
+
       - name: Start Docker container
-        run: docker run -d -p 8001:8001 --name demoApp ${{ env.IMAGE_TAG }}
+        run: docker run -d -p 8001:8001 --name container ${{ env.IMAGE_TAG }}
         
       - name: Wait for container to start
         run: timeout 300 bash -c 'while [[ "$(curl -s -o /dev/null -w ''%{http_code}'' localhost:8001)" != "200" ]]; do sleep 5; done' || false
