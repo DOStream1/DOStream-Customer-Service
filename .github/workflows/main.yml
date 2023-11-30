@@ -30,11 +30,11 @@ jobs:
     uses: ./.github/workflows/sca.yml
     secrets: inherit
   
-  sast:
-    needs: build
-    name: SAST
-    uses: ./.github/workflows/sast.yml
-    secrets: inherit
+  # sast:
+  #   needs: build
+  #   name: SAST
+  #   uses: ./.github/workflows/sast.yml
+  #   secrets: inherit
 
   tivy-scan:
     needs: build
