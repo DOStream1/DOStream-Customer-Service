@@ -6,25 +6,50 @@ on:
       - main
 
 jobs:
-  Code-Scan:
+  code-Scan:
+    runs-on: ubuntu-latest
     name: Code-Scan
-    uses: ./.github/workflows/sonarqube.yml
-    secrets: inherit
+    steps:
+      - uses: actions/checkout@v3
+      - uses: ./sonarqube
 
-  Build:
-    name: Build
-    uses: ./.github/workflows/docker.yml
-    secrets: inherit #https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions#jobsjob_idsecretsinherit
+  build:
+    runs-on: ubuntu-latest
+    needs: code-Scan
+    name: build
+    steps:
+      - uses: actions/checkout@v3
+      - uses: ./docker
 
   sca:
-    needs: Build
+    runs-on: ubuntu-latest
+    needs: build
     name: SCA
-    uses: ./.github/workflows/sca.yml
-    secrets: inherit
+    steps:
+      - uses: actions/checkout@v3
+      - uses: ./sca
   
   sast:
-    needs: Build
+    runs-on: ubuntu-latest
+    needs: build
     name: SAST
-    uses: ./.github/workflows/sast.yml
-    secrets: inherit
+    steps:
+      - uses: actions/checkout@v3
+      - uses: ./sast
+
+  tivy-scan:
+    runs-on: ubuntu-latest
+    needs: build
+    name: Trivy
+    steps:
+      - uses: actions/checkout@v3
+      - uses: ./trivy-scan
+
+  dast:
+    runs-on: ubuntu-latest
+    needs: build
+    name: DAST
+    steps:
+      - uses: actions/checkout@v3
+      - uses: ./dast
   
