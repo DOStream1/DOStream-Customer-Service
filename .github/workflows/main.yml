@@ -14,7 +14,7 @@ jobs:
   #     - uses: ./sonarqube
   code-scan:
     name: Code-Scan
-    uses: Customers\DOStream-Customer-Service\.github\workflows\sonarqube.yml
+    uses: DOStream1/DOStream-Customer-Service/.github/workflows/sonarqube.yml
     secrets: inherit
 
 
