@@ -53,7 +53,6 @@ jobs:
 
       - name: Apply Kubernetes Config
         run: |
-          # kubectl get secret regcred || kubectl create secret docker-registry regcred --docker-server=${{ secrets.CI_REGISTRY }} --docker-username=${{ secrets.CI_REGISTRY_USER }} --docker-password=${{ secrets.CI_REGISTRY_PASSWORD }} --docker-email=unused@example.com
           kubectl apply -f ./k8s/configmap.yaml
           kubectl apply -f ./k8s/deployment.yaml
           kubectl apply -f ./k8s/service.yaml
