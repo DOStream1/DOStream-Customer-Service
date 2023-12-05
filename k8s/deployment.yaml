@@ -14,11 +14,19 @@ spec:
     spec:
       containers:
         - name: customer
-          image: http://lyour-customer-image:latest  # Replace with your image and tag
+          image: registry.gitlab.com/dostream1/application/backend/customer:main # Replace with your image and tag
           ports:
             - containerPort: 8001
+          env:
+            - name: CUSTOMER_CONFIG
+              valueFrom:
+                configMapKeyRef:
+                  name: customer-config
+                  key: .env.dev
           # Add volume mounts and resources as needed
           resources:
             limits:
-              memory: "512Mi"  # Adjust the memory limit as needed
-              cpu: "0.5"        # Adjust the CPU limit as needed
+              memory: "512Mi"
+              cpu: "200m"  # Adjust the CPU limit as needed
+            requests:
+              cpu: "100m"  # Adjust the CPU request as needed
