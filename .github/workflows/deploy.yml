@@ -35,10 +35,11 @@ jobs:
           aws configure set aws_secret_access_key ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws configure set default.region ${{ secrets.AWS_DEFAULT_REGION_DEV }}
 
-      - name: Setup Docker
-        run: |
-          sudo apt-get install -y docker.io
-          docker login -u ${{ secrets.CI_REGISTRY_USER }} -p ${{ secrets.CI_REGISTRY_PASSWORD }} ${{ secrets.CI_REGISTRY }}
+      - name: Log in to Docker Hub
+        uses: docker/login-action@f4ef78c080cd8ba55a85445d5b36e214a81df20a
+        with:
+          username: ${{ secrets.CI_REGISTRY_USER }}
+          password: ${{ secrets.CI_REGISTRY_PASSWORD }}
 
       - name: Update kubeconfig
         run: |
