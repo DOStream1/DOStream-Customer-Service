@@ -43,7 +43,7 @@ jobs:
 
       - name: Update kubeconfig
         run: |
-          aws eks --region ${{ secrets.AWS_DEFAULT_REGION_DEV }} update-kubeconfig --name dostream-eks
+          aws eks --region ${{ secrets.AWS_DEFAULT_REGION_DEV }} update-kubeconfig --name dostream-eks-dev
 
       # - name: Set Version
       #   run: |
