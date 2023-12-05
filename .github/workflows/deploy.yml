@@ -38,15 +38,15 @@ jobs:
         run: |
           aws eks --region ${{ secrets.AWS_DEFAULT_REGION_DEV }} update-kubeconfig --name dostream-eks-dev
 
-      - name: Set Version
-        run: |
-          VERSION_DEV=$(cat version.txt)-dev
-          export IMAGE_VERSION="$VERSION_DEV"
-          sed -i "s|\${IMAGE_VERSION}|$IMAGE_VERSION|" ./k8s/deployment.yaml
+      # - name: Set Version
+      #   run: |
+      #     VERSION_DEV=$(cat version.txt)-dev
+      #     export IMAGE_VERSION="$VERSION_DEV"
+      #     sed -i "s|\${IMAGE_VERSION}|$IMAGE_VERSION|" ./k8s/deployment.yaml
 
       - name: Apply Kubernetes Config
         run: |
-          kubectl get secret regcred || kubectl create secret docker-registry regcred --docker-server=${{ secrets.CI_REGISTRY }} --docker-username=${{ secrets.CI_REGISTRY_USER }} --docker-password=${{ secrets.CI_REGISTRY_PASSWORD }} --docker-email=unused@example.com
+          # kubectl get secret regcred || kubectl create secret docker-registry regcred --docker-server=${{ secrets.CI_REGISTRY }} --docker-username=${{ secrets.CI_REGISTRY_USER }} --docker-password=${{ secrets.CI_REGISTRY_PASSWORD }} --docker-email=unused@example.com
           kubectl apply -f ./k8s/configmap.yaml
           kubectl apply -f ./k8s/deployment.yaml
           kubectl apply -f ./k8s/service.yaml
