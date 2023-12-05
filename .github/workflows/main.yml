@@ -49,4 +49,12 @@ jobs:
     secrets: inherit
     with:
       image-tag: "my-tag1"
+
+  deploy-dev:
+    needs: build
+    name: Deploy-Dev
+    uses: ./.github/workflow/deploy.yml
+    secrets: inherit
+    with:
+      image-tag: "my-tag1"
   
