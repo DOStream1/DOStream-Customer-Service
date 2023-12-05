@@ -1,6 +1,12 @@
+
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: product-image-tag
+  name: customer-config
 data:
-  image-tag: your-tag
+  .env.dev: |
+    APP_SECRET='jg_youtube_tutorial'
+    MONGODB_URI='mongodb://mongodb/msytt_customer'
+    MSG_QUEUE_URL='amqp://guest:guest@rabbitmq-service:5672'
+    EXCHANGE_NAME='ONLINE_STORE'
+    PORT=8001
