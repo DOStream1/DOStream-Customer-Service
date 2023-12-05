@@ -1,6 +1,12 @@
 name: Deploy
 
-on: workflow_call
+on:
+  workflow_call:
+    inputs:
+      image-tag:
+        type: string
+        description: 'The name of the docker image to scan'
+        required: true
 
 jobs:
   deploy_dev:
