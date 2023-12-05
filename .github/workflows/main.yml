@@ -53,7 +53,7 @@ jobs:
   deploy-dev:
     needs: build
     name: Deploy-Dev
-    uses: ./.github/workflow/deploy.yml
+    uses: ./.github/workflows/deploy.yml
     secrets: inherit
     with:
       image-tag: "my-tag1"
