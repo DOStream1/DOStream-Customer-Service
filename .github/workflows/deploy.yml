@@ -13,7 +13,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [label-1]
+        os: [DOStream]
 
     steps:
       - name: Checkout Repository
