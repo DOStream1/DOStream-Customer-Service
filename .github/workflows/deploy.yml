@@ -9,7 +9,7 @@ on:
         required: true
 
 jobs:
-  deploy_dev:
+  deploy:
     runs-on: ubuntu-latest
 
     steps:
