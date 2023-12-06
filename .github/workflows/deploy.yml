@@ -7,6 +7,10 @@ on:
         type: string
         description: 'The name of the docker image to scan'
         required: true
+      env:
+        type: string
+        description: 'The name of the docker image to scan'
+        required: true
 
 jobs:
   deploy:
@@ -50,7 +54,7 @@ jobs:
         with:
           command: "apply -f ./k8s/deployment.yaml"
         env:
-          EKS_CLUSTER: dostream-eks-dev
+          EKS_CLUSTER: dostream-eks-${{ inputs.env }}
 
 
       # - name: Log in to Docker Hub
