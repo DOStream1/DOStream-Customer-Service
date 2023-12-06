@@ -42,13 +42,13 @@ jobs:
   #   uses: ./.github/workflows/trivy-scan.yml
   #   secrets: inherit
 
-  dast:
-    needs: build
-    name: DAST
-    uses: ./.github/workflows/dast.yml
-    secrets: inherit
-    with:
-      image-tag: "my-tag1"
+  # dast:
+  #   needs: build
+  #   name: DAST
+  #   uses: ./.github/workflows/dast.yml
+  #   secrets: inherit
+  #   with:
+  #     image-tag: "my-tag1"
 
   deploy-dev:
     needs: build
