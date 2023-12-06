@@ -47,6 +47,8 @@ jobs:
     name: Trivy
     uses: ./.github/workflows/trivy-scan.yml
     secrets: inherit
+    with:
+      image-tag: "my-tag1"
 
   # dast:
   #   needs: build
