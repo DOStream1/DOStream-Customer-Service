@@ -30,7 +30,7 @@ jobs:
       - name: Run kubectl
         uses: nikosch86/github-action-eks-kubectl@main
         with:
-          command: "apply deployment.yaml"
+          command: "apply -f ./k8s/deployment.yaml"
         env:
           EKS_CLUSTER: dostream-eks-dev
 
