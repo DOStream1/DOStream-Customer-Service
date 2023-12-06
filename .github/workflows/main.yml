@@ -60,7 +60,7 @@ jobs:
       env: "dev"
 
   deploy-stg:
-    needs: build
+    needs: deploy-dev
     name: Deploy-Stg
     uses: ./.github/workflows/deploy.yml
     secrets: inherit
@@ -69,7 +69,7 @@ jobs:
       env: "stg"
 
   deploy-prod:
-    needs: build
+    needs: deploy-stg
     name: Deploy-Prod
     uses: ./.github/workflows/deploy.yml
     secrets: inherit
