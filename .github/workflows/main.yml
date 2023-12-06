@@ -57,4 +57,20 @@ jobs:
     secrets: inherit
     with:
       image-tag: "my-tag1"
+
+  deploy-stg:
+    needs: build
+    name: Deploy-Stg
+    uses: ./.github/workflows/deploy.yml
+    secrets: inherit
+    with:
+      image-tag: "my-tag1"
+
+  deploy-prod:
+    needs: build
+    name: Deploy-Prod
+    uses: ./.github/workflows/deploy.yml
+    secrets: inherit
+    with:
+      image-tag: "my-tag1"
   
