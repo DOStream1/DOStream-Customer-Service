@@ -42,11 +42,11 @@ jobs:
   #   uses: ./.github/workflows/sast.yml
   #   secrets: inherit
 
-  # tivy-scan:
-    # needs: build
-  #   name: Trivy
-  #   uses: ./.github/workflows/trivy-scan.yml
-  #   secrets: inherit
+  tivy-scan:
+    needs: build
+    name: Trivy
+    uses: ./.github/workflows/trivy-scan.yml
+    secrets: inherit
 
   # dast:
   #   needs: build
