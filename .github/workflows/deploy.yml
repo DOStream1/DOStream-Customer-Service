@@ -15,47 +15,64 @@ jobs:
       matrix:
         os: [DOStream]
 
+    # steps:
+    #   - name: Checkout Repository
+    #     uses: actions/checkout@v2
     steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v2
-
-      - name: Setup Python and AWS CLI
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y python3 python3-pip
-          pip3 install --upgrade pip
-          pip3 install awscli
-
-      - name: Setup kubectl
-        run: |
-          sudo curl -LO "https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl"
-          sudo chmod +x kubectl
-          sudo mv kubectl /usr/local/bin/
-
-      - name: Configure AWS
-        run: |
-          aws configure set aws_access_key_id ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws configure set aws_secret_access_key ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws configure set default.region ${{ secrets.AWS_DEFAULT_REGION_DEV }}
-
-      - name: Log in to Docker Hub
-        uses: docker/login-action@f4ef78c080cd8ba55a85445d5b36e214a81df20a
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
         with:
-          username: ${{ secrets.CI_REGISTRY_USER }}
-          password: ${{ secrets.CI_REGISTRY_PASSWORD }}
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_DEFAULT_REGION_DEV }}
 
-      - name: Update kubeconfig
-        run: |
-          aws eks --region ${{ secrets.AWS_DEFAULT_REGION_DEV }} update-kubeconfig --name dostream-eks-dev
+      - uses: actions/checkout@v2
+      - name: Run kubectl
+        uses: nikosch86/github-action-eks-kubectl@main
+        with:
+          command: "apply deployment.yaml"
+        env:
+          EKS_CLUSTER: dostream-eks-dev
 
-      # - name: Set Version
+
+
+      # - name: Setup Python and AWS CLI
       #   run: |
-      #     VERSION_DEV=$(cat version.txt)-dev
-      #     export IMAGE_VERSION="$VERSION_DEV"
-      #     sed -i "s|\${IMAGE_VERSION}|$IMAGE_VERSION|" ./k8s/deployment.yaml
+      #     sudo apt-get update
+      #     sudo apt-get install -y python3 python3-pip
+      #     pip3 install --upgrade pip
+      #     pip3 install awscli
 
-      - name: Apply Kubernetes Config
-        run: |
-          kubectl apply -f ./k8s/configmap.yaml
-          kubectl apply -f ./k8s/deployment.yaml
-          kubectl apply -f ./k8s/service.yaml
+      # - name: Setup kubectl
+      #   run: |
+      #     sudo curl -LO "https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl"
+      #     sudo chmod +x kubectl
+      #     sudo mv kubectl /usr/local/bin/
+
+      # - name: Configure AWS
+      #   run: |
+      #     aws configure set aws_access_key_id ${{ secrets.AWS_ACCESS_KEY_ID }}
+      #     aws configure set aws_secret_access_key ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      #     aws configure set default.region ${{ secrets.AWS_DEFAULT_REGION_DEV }}
+
+      # - name: Log in to Docker Hub
+      #   uses: docker/login-action@f4ef78c080cd8ba55a85445d5b36e214a81df20a
+      #   with:
+      #     username: ${{ secrets.CI_REGISTRY_USER }}
+      #     password: ${{ secrets.CI_REGISTRY_PASSWORD }}
+
+      # - name: Update kubeconfig
+      #   run: |
+      #     aws eks --region ${{ secrets.AWS_DEFAULT_REGION_DEV }} update-kubeconfig --name dostream-eks-dev
+
+      # # - name: Set Version
+      # #   run: |
+      # #     VERSION_DEV=$(cat version.txt)-dev
+      # #     export IMAGE_VERSION="$VERSION_DEV"
+      # #     sed -i "s|\${IMAGE_VERSION}|$IMAGE_VERSION|" ./k8s/deployment.yaml
+
+      # - name: Apply Kubernetes Config
+      #   run: |
+      #     kubectl apply -f ./k8s/configmap.yaml
+      #     kubectl apply -f ./k8s/deployment.yaml
+      #     kubectl apply -f ./k8s/service.yaml
