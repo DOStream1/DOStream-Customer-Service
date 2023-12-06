@@ -1,20 +1,24 @@
-name: Sonarqube pipeline
-on: workflow_call
+name: Trivy scan
+on:
+  workflow_call:
+    inputs:
+      image-tag:
+        type: string
+        description: 'The name of the docker image to scan'
+        required: true
 
 jobs:
-  build:
-    name: Build
+  Trviy-scan:
+    name: trivy-scan
     runs-on: ubuntu-20.04
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
       - name: Build an image from Dockerfile
         run: |
-          docker build -t docker.io/my-organization/my-app:${{ github.sha }} .
+          pirabanjan/buy-it-customer-service:${{ github.sha }} .
       - name: Run Trivy vulnerability scanner
         uses: aquasecurity/trivy-action@master
         with:
-          image-ref: 'docker.io/my-organization/my-app:${{ github.sha }}'
+          image-ref: 'pirabanjan/buy-it-customer-service:${{ github.sha }}'
           format: 'table'
           exit-code: '1'
           ignore-unfixed: true
