@@ -16,6 +16,12 @@ jobs:
   #   #name: build
   #   uses: ./.github/workflows/docker.yml
   #   secrets: inherit
+
+  snyk:
+    name: snyk-scan
+    uses: ./.github/workflows/snyk.yml
+    secrets: inherit
+    
   build:
     # needs: code-scan
     # name: build
