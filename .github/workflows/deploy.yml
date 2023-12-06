@@ -60,13 +60,26 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ env.aws-region }}
 
-      - name: Run kubectl
+      - name: Run kubectl configmap
+        uses: nikosch86/github-action-eks-kubectl@main
+        with:
+          command: "apply -f ./k8s/configmap.yaml"
+        env:
+          EKS_CLUSTER: dostream-eks-${{ inputs.env }}
+
+      - name: Run kubectl deployment
         uses: nikosch86/github-action-eks-kubectl@main
         with:
           command: "apply -f ./k8s/deployment.yaml"
         env:
           EKS_CLUSTER: dostream-eks-${{ inputs.env }}
 
+      - name: Run kubectl service
+        uses: nikosch86/github-action-eks-kubectl@main
+        with:
+          command: "apply -f ./k8s/service.yaml"
+        env:
+          EKS_CLUSTER: dostream-eks-${{ inputs.env }}
 
       # - name: Log in to Docker Hub
       #   uses: docker/login-action@f4ef78c080cd8ba55a85445d5b36e214a81df20a
