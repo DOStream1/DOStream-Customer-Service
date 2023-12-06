@@ -1,5 +1,5 @@
 name: Example workflow for Node using Snyk
-on: push
+on: workflow_call:
 jobs:
   security:
     runs-on: ubuntu-latest
