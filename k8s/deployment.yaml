@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
         - name: customer
-          image: registry.gitlab.com/dostream1/application/backend/customer:main # Replace with your image and tag
+          image: pirabanjan/buy-it-customer-service:main # Replace with your image and tag
           ports:
             - containerPort: 8001
           env:
