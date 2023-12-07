@@ -141,7 +141,7 @@ jobs:
         aws-region: ${{ env.aws-region }}
 
     - name: Configure kubectl
-      run: aws eks --region $AWS_DEFAULT_REGION_DEV update-kubeconfig --name dostream-eks-${{ env.aws-region }}
+      run: aws eks --region eu-central-1 update-kubeconfig --name dostream-eks-dev
 
     - name: Get External IP
       id: get-external-ip
