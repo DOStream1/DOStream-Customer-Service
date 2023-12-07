@@ -20,10 +20,12 @@ jobs:
         uses: aquasecurity/trivy-action@master
         with:
           image-ref: 'pirabanjan/buy-it-customer-service:${{ inputs.image-tag }}'
-          format: 'table'
-          severity: 'CRITICAL,HIGH'
-          ignore-unfixed: true
-          output: trivy_report.txt
+          format: 'sarif'
+          output: 'trivy-results.sarif'
+          # format: 'table'
+          # severity: 'CRITICAL,HIGH'
+          # ignore-unfixed: true
+          # output: trivy_report.txt
 
       # - name: Save Trivy scan report as an artifact
       #   if: always()  # Ensure this step runs even if the previous steps fail
@@ -31,12 +33,7 @@ jobs:
       #   with:
       #     name: trivy-report
       #     path: /github/workspace/trivy_report.txt
-      - name: Save Trivy scan report
-        run: echo "${{ steps.trivy.outputs.trivy-report }}" > trivy_report.txt
-
-      - name: Upload Trivy scan report as an artifact
-        if: always()
-        uses: actions/upload-artifact@v2
+      - name: Upload Trivy scan results to GitHub Security tab
+        uses: github/codeql-action/upload-sarif@v1
         with:
-          name: trivy-report
-          path: trivy_report.txt
+          sarif_file: 'trivy-results.sarif'
