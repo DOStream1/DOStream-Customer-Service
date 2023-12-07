@@ -6,16 +6,10 @@ on:
       - main
 
 jobs:
-  # code-scan:
-  #   name: Code-Scan
-  #   uses: ./.github/workflows/sonarqube.yml
-  #   secrets: inherit
-
-  # build:
-  #   # needs: code-scan
-  #   #name: build
-  #   uses: ./.github/workflows/docker.yml
-  #   secrets: inherit
+  code-scan:
+    name: Code-Scan
+    uses: ./.github/workflows/sonarqube.yml
+    secrets: inherit
 
   snyk:
     name: snyk-scan
@@ -23,8 +17,8 @@ jobs:
     secrets: inherit
     
   build:
-    # needs: code-scan
-    # name: build
+    needs: code-scan
+    name: build
     uses: ./.github/workflows/docker.yml
     secrets: inherit
     with:
