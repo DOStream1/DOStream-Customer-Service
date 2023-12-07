@@ -9,6 +9,12 @@ const {
   MSG_QUEUE_URL,
 } = require("../config");
 
+// const APP_SECRET = 'jg_youtube_tutorial';
+// const EXCHANGE_NAME = 'ONLINE_STORE';
+// const CUSTOMER_SERVICE = 'customer_service';
+// const MSG_QUEUE_URL = 'amqp://guest:guest@rabbitmq-service:5672';
+
+
 //Utility functions
 module.exports.GenerateSalt = async () => {
   return await bcrypt.genSalt();
