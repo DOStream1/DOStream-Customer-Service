@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest  # You can choose a different operating system
 
     env:
-      BASE_URL: "http://localhost:8300"  # Set the base URL as an environment variable
+      BASE_URL: "http://a7a98416acbb04022828289e9de26da3-1170763216.us-west-2.elb.amazonaws.com:80"  # Set the base URL as an environment variable
 
     steps:
     - name: Checkout code
