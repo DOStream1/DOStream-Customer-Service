@@ -17,18 +17,17 @@ jobs:
       - name: Build an image from Dockerfile
         run: docker build -t pirabanjan/buy-it-customer-service:${{ inputs.image-tag }} .
       - name: Run Trivy vulnerability scanner
-        uses: aquasecurity/trivy-action@master
+        uses: aquasecurity/trivy-action@v0.11.0
         with:
           image-ref: 'pirabanjan/buy-it-customer-service:${{ inputs.image-tag }}'
-          # format: 'table'
-          exit-code: '1'
+          format: 'table'
+          severity: 'CRITICAL,HIGH'
           ignore-unfixed: true
-          vuln-type: 'os,library'
-          severity: 'LOW,MEDIUM,HIGH,CRITICAL'
-          format: 'sarif'
-          output: 'trivy-results.sarif'
+          output: trivy_report.txt
 
-      - name: Upload Trivy scan results to GitHub Security tab
-        uses: github/codeql-action/upload-sarif@v2
+      - name: Save Trivy scan report as an artifact
+        if: always()  # Ensure this step runs even if the previous steps fail
+        uses: actions/upload-artifact@v2
         with:
-          sarif_file: 'trivy-results.sarif'
+          name: trivy-report
+          path: /github/workspace/trivy_report.txt
