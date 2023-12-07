@@ -12,6 +12,8 @@ jobs:
     name: trivy-scan
     runs-on: ubuntu-20.04
     steps:
+      - name: List files in the current directory
+        run: ls -l
       - name: Build an image from Dockerfile
         run: docker build -t pirabanjan/buy-it-customer-service:${{ inputs.image-tag }} .
       - name: Run Trivy vulnerability scanner
