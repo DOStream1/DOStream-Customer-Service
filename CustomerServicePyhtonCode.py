@@ -39,7 +39,7 @@ def get_request(endpoint):
 # POST request to /customer/signup
 payload_signup = json.dumps({
     "email": "test4@test.com",
-    "password": "12345"
+    "password": "12345",  # Add a comma here
     "phone": "12345"
 })
 post_request("customer/signup", payload_signup)
