@@ -119,7 +119,7 @@ jobs:
     - name: Get External IP
       id: get-external-ip
       run: |
-        EXTERNAL_IP=$(kubectl get svc -n your-namespace your-service-name -o jsonpath='{.status.loadBalancer.ingress[0].ip}')
+        EXTERNAL_IP=$(kubectl get svc -n default nginx-proxy-service -o jsonpath='{.status.loadBalancer.ingress[0].ip}')
         echo "external_ip=${EXTERNAL_IP}" >> $GITHUB_ENV
 
     - name: Set Base URL based on environment
