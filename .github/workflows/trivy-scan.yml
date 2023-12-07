@@ -24,7 +24,7 @@ jobs:
           exit-code: '1'
           ignore-unfixed: true
           vuln-type: 'os,library'
-          severity: 'CRITICAL,HIGH'
+          severity: 'LOW,MEDIUM,HIGH,CRITICAL'
       - name: Save Trivy scan report as an artifact
         uses: actions/upload-artifact@v2
         with:
