@@ -1,0 +1,25 @@
+name: Run Python Script
+
+on:
+  push:
+    branches:
+      - main  # Change this to your default branch
+
+jobs:
+  run-python-script:
+    runs-on: ubuntu-latest  # You can choose a different operating system
+
+    env:
+      BASE_URL: "http://localhost:8300"  # Set the base URL as an environment variable
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: 3.x  # Choose the Python version you need
+
+    - name: Run Python script
+      run: python test/CustomerServicePyhtonCode.py ${{ env.BASE_URL }}  # Pass the base URL as a parameter
