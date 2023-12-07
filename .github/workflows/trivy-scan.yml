@@ -25,9 +25,18 @@ jobs:
           ignore-unfixed: true
           output: trivy_report.txt
 
-      - name: Save Trivy scan report as an artifact
-        if: always()  # Ensure this step runs even if the previous steps fail
+      # - name: Save Trivy scan report as an artifact
+      #   if: always()  # Ensure this step runs even if the previous steps fail
+      #   uses: actions/upload-artifact@v2
+      #   with:
+      #     name: trivy-report
+      #     path: /github/workspace/trivy_report.txt
+      - name: Save Trivy scan report
+        run: echo "${{ steps.trivy.outputs.trivy-report }}" > trivy_report.txt
+
+      - name: Upload Trivy scan report as an artifact
+        if: always()
         uses: actions/upload-artifact@v2
         with:
           name: trivy-report
-          path: /github/workspace/trivy_report.txt
+          path: trivy_report.txt
