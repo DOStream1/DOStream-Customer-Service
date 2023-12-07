@@ -40,7 +40,7 @@ jobs:
 
   test-dev:
     name: test-dev
-    # needs: deploy-dev
+    needs: deploy-dev
     uses: ./.github/workflows/test.yml
     secrets: inherit
     with:
