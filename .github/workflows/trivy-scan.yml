@@ -21,7 +21,7 @@ jobs:
         with:
           image-ref: 'pirabanjan/buy-it-customer-service:${{ inputs.image-tag }}'
           format: 'sarif'
-          output: 'trivy-results.sarif'
+          output: 'trivy-image-results.sarif'
           # format: 'table'
           severity: 'CRITICAL,HIGH'
           ignore-unfixed: true
