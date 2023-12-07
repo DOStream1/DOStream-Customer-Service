@@ -39,7 +39,6 @@ def get_request(endpoint):
 # POST request to /customer/signup
 payload_signup = json.dumps({
     "email": "test4@test.com",
-    "password": "12345",
     "phone": "12345"
 })
 post_request("customer/signup", payload_signup)
@@ -47,7 +46,6 @@ post_request("customer/signup", payload_signup)
 # POST request to /customer/login
 payload_login = json.dumps({
     "email": "test4@test.com",
-    "password": "12345"
 })
 post_request("customer/login", payload_login)
 
