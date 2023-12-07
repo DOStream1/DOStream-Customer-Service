@@ -28,7 +28,7 @@ jobs:
       image-tag: "my-tag1"
 
   deploy-dev:
-    needs: build
+    needs: [build, trivy-scan] 
     name: Deploy-Dev
     uses: ./.github/workflows/deploy.yml
     secrets: inherit
