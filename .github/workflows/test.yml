@@ -148,8 +148,7 @@ jobs:
       run: |
         EXTERNAL_IP=$(kubectl get svc -n default nginx-proxy-service -o jsonpath='{.status.loadBalancer.ingress[0].hostname}')
         echo "external_ip=${EXTERNAL_IP}" >> $GITHUB_ENV
-        echo "External IP: $EXTERNAL_IP"  # Add this line for debugging
-
+        
     - name: Set Base URL based on environment
       run: |
         if [ "${{ inputs.env }}" = "dev" ]; then
@@ -164,7 +163,7 @@ jobs:
         fi
 
     - name: Run Python script
-      run: python CustomerServicePyhtonCode.py $EXTERNAL_IP  # Pass the base URL as a parameter
+      run: python CustomerServicePyhtonCode.py "http://${{ env.external_ip }}:80"  # Pass the complete URL as a parameter
 
     - name: Upload output as artifact
       uses: actions/upload-artifact@v2
