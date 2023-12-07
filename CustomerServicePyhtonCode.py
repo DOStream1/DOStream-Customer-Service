@@ -23,16 +23,18 @@ def post_request(endpoint, payload):
     url = f"{base_url}/{endpoint}"
     headers = get_headers()
     response = requests.post(url, headers=headers, data=payload)
-    print(f"URL: {url}")
-    print(f"Response: {response.text}\n")
+    with open("output.txt", "a") as output_file:
+        output_file.write(f"URL: {url}\n")
+        output_file.write(f"Response: {response.text}\n\n")
 
 # Function to make a GET request
 def get_request(endpoint):
     url = f"{base_url}/{endpoint}"
     headers = get_headers()
     response = requests.get(url, headers=headers)
-    print(f"URL: {url}")
-    print(f"Response: {response.text}\n")
+    with open("output.txt", "a") as output_file:
+        output_file.write(f"URL: {url}\n")
+        output_file.write(f"Response: {response.text}\n\n")
 
 # Example usage:
 
