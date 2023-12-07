@@ -1,28 +1,142 @@
+# name: Run Python Script
+
+# on:
+#   workflow_call:
+#     inputs:
+#       env:
+#         type: string
+#         description: 'The name of the docker image to scan'
+#         required: true
+
+# jobs:
+#   run-python-script:
+#     runs-on: ubuntu-latest  # You can choose a different operating system
+
+#     env:
+#       BASE_URL: "http://a7a98416acbb04022828289e9de26da3-1170763216.us-west-2.elb.amazonaws.com:80"  # Set the base URL as an environment variable
+
+#     steps:
+#     - name: Checkout code
+#       uses: actions/checkout@v2
+
+#     - name: Set up Python
+#       uses: actions/setup-python@v2
+#       with:
+#         python-version: 3.x  # Choose the Python version you need
+
+#     - name: Install dependencies
+#       run: pip install requests
+
+#     - name: Run Python script
+#       run: python CustomerServicePyhtonCode.py ${{ env.BASE_URL }}  # Pass the base URL as a parameter
+
+#     - name: Upload output as artifact
+#       uses: actions/upload-artifact@v2
+#       with:
+#         name: python-script-output
+#         path: output.txt
+# name: Run Python Script
+
+# on:
+#   workflow_call:
+#     inputs:
+#       env:
+#         type: string
+#         description: 'The name of the docker image to scan'
+#         required: true
+
+# jobs:
+#   run-python-script:
+#     runs-on: ubuntu-latest  # You can choose a different operating system
+
+#     env:
+#       BASE_URL_DEV: "http://dev-url:80"   # Set the base URL for dev environment
+#       BASE_URL_STG: "http://stg-url:80"   # Set the base URL for stg environment
+#       BASE_URL_PROD: "http://prod-url:80" # Set the base URL for prod environment
+
+#     steps:
+#     - name: Checkout code
+#       uses: actions/checkout@v2
+
+#     - name: Set up Python
+#       uses: actions/setup-python@v2
+#       with:
+#         python-version: 3.x  # Choose the Python version you need
+
+#     - name: Install dependencies
+#       run: pip install requests
+
+#     - name: Set Base URL based on environment
+#       run: |
+#         if [ "${{ inputs.env }}" = "dev" ]; then
+#           export BASE_URL="${BASE_URL_DEV}"
+#         elif [ "${{ inputs.env }}" = "stg" ]; then
+#           export BASE_URL="${BASE_URL_STG}"
+#         elif [ "${{ inputs.env }}" = "prod" ]; then
+#           export BASE_URL="${BASE_URL_PROD}"
+#         else
+#           echo "Invalid environment specified."
+#           exit 1
+#         fi
+
+#     - name: Run Python script
+#       run: python CustomerServicePyhtonCode.py $BASE_URL  # Pass the base URL as a parameter
+
+#     - name: Upload output as artifact
+#       uses: actions/upload-artifact@v2
+#       with:
+#         name: python-script-output
+#         path: output.txt
 name: Run Python Script
 
-on: workflow_call
+on:
+  workflow_call:
+    inputs:
+      env:
+        type: string
+        description: 'The name of the docker image to scan'
+        required: true
 
 jobs:
   run-python-script:
-    runs-on: ubuntu-latest  # You can choose a different operating system
+    runs-on: ubuntu-latest
 
     env:
-      BASE_URL: "http://a7a98416acbb04022828289e9de26da3-1170763216.us-west-2.elb.amazonaws.com:80"  # Set the base URL as an environment variable
+      BASE_URL_DEV: "http://dev-url:80"
+      BASE_URL_STG: "http://stg-url:80"
+      BASE_URL_PROD: "http://prod-url:80"
 
     steps:
     - name: Checkout code
       uses: actions/checkout@v2
 
-    - name: Set up Python
-      uses: actions/setup-python@v2
-      with:
-        python-version: 3.x  # Choose the Python version you need
+    - name: Setup kubectl
+      run: |
+        sudo curl -LO "https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl"
+        sudo chmod +x kubectl
+        sudo mv kubectl /usr/local/bin/
 
-    - name: Install dependencies
-      run: pip install requests
+    - name: Get External IP
+      id: get-external-ip
+      run: |
+        EXTERNAL_IP=$(kubectl get svc -n your-namespace your-service-name -o jsonpath='{.status.loadBalancer.ingress[0].ip}')
+        echo "external_ip=${EXTERNAL_IP}" >> $GITHUB_ENV
+
+    - name: Set Base URL based on environment
+      run: |
+        if [ "${{ inputs.env }}" = "dev" ]; then
+          export BASE_URL="${BASE_URL_DEV}"
+        elif [ "${{ inputs.env }}" = "stg" ]; then
+          export BASE_URL="${BASE_URL_STG}"
+        elif [ "${{ inputs.env }}" = "prod" ]; then
+          export BASE_URL="${BASE_URL_PROD}"
+        else
+          echo "Invalid environment specified."
+          exit 1
+        fi
 
     - name: Run Python script
-      run: python CustomerServicePyhtonCode.py ${{ env.BASE_URL }}  # Pass the base URL as a parameter
+      run: python CustomerServicePyhtonCode.py $BASE_URL  # Pass the base URL as a parameter
 
     - name: Upload output as artifact
       uses: actions/upload-artifact@v2
