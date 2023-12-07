@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 const { DB_URL } = require('../config');
 
+
 module.exports = async() => {
 
     try {
@@ -13,6 +14,7 @@ module.exports = async() => {
         
     } catch (error) {
         console.error('Error ============ ON DB Connection')
+        console.log('MongoDB URI:', DB_URL);
         console.log(error);
     }
  
