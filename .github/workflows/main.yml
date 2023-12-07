@@ -74,7 +74,7 @@ jobs:
 
   test-prod:
     name: deploy-prod
-    needs: deploy-stg
+    needs: deploy-prod
     uses: ./.github/workflows/test.yml
     secrets: inherit
     with:
