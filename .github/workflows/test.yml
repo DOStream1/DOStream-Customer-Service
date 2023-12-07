@@ -164,7 +164,7 @@ jobs:
         fi
 
     - name: Run Python script
-      run: python CustomerServicePyhtonCode.py $BASE_URL  # Pass the base URL as a parameter
+      run: python CustomerServicePyhtonCode.py $EXTERNAL_IP  # Pass the base URL as a parameter
 
     - name: Upload output as artifact
       uses: actions/upload-artifact@v2
