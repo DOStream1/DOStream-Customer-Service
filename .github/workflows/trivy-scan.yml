@@ -13,8 +13,7 @@ jobs:
     runs-on: ubuntu-20.04
     steps:
       - name: Build an image from Dockerfile
-        run: |
-          pirabanjan/buy-it-customer-service:${{ inputs.image-tag }} .
+        run: docker build -t pirabanjan/buy-it-customer-service:${{ inputs.image-tag }} .
       - name: Run Trivy vulnerability scanner
         uses: aquasecurity/trivy-action@master
         with:
