@@ -22,4 +22,4 @@ jobs:
         python-version: 3.x  # Choose the Python version you need
 
     - name: Run Python script
-      run: python test/CustomerServicePyhtonCode.py ${{ env.BASE_URL }}  # Pass the base URL as a parameter
+      run: python CustomerServicePyhtonCode.py ${{ env.BASE_URL }}  # Pass the base URL as a parameter
