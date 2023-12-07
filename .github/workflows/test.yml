@@ -1,9 +1,6 @@
 name: Run Python Script
 
-on:
-  push:
-    branches:
-      - main  # Change this to your default branch
+on: workflow_call
 
 jobs:
   run-python-script:
