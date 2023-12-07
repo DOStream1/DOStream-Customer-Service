@@ -14,11 +14,11 @@ jobs:
     steps:
       - name: Build an image from Dockerfile
         run: |
-          pirabanjan/buy-it-customer-service:${{ github.sha }} .
+          pirabanjan/buy-it-customer-service:${{ inputs.image-tag }} .
       - name: Run Trivy vulnerability scanner
         uses: aquasecurity/trivy-action@master
         with:
-          image-ref: 'pirabanjan/buy-it-customer-service:${{ github.sha }}'
+          image-ref: 'pirabanjan/buy-it-customer-service:${{ inputs.image-tag }}'
           format: 'table'
           exit-code: '1'
           ignore-unfixed: true
