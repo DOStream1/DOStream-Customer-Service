@@ -25,3 +25,8 @@ jobs:
           ignore-unfixed: true
           vuln-type: 'os,library'
           severity: 'CRITICAL,HIGH'
+      - name: Save Trivy scan report as an artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: trivy-report
+          path: /github/workspace/trivy_report.txt
