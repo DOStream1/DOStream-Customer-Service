@@ -9,7 +9,7 @@ on:
 jobs:
   test:
     name: test
-    uses: ./.github/workflows/sonarqube.yml
+    uses: ./.github/workflows/test.yml
     secrets: inherit
   # code-scan:
   #   name: Code-Scan
