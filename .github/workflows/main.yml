@@ -19,7 +19,7 @@ jobs:
     with:
       image-tag: "my-tag1"
 
-  tivy-scan:
+  trivy-scan:
     needs: build
     name: Trivy
     uses: ./.github/workflows/trivy-scan.yml
