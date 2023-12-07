@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
         - name: customer
-          image: pirabanjan/buy-it-customer-service:main # Replace with your image and tag
+          image: pirabanjan/buy-it-customer-service:my-tag1 # Replace with your image and tag
           ports:
             - containerPort: 8001
           env:
